@@ -2,6 +2,7 @@ use serenity::async_trait;
 use serenity::prelude::*;
 use serenity::builder::{CreateInteractionResponse, CreateInteractionResponseMessage};
 use serenity::model::application::Interaction;
+use songbird::events::{Event, EventContext, EventHandler as VoiceEventHandler, TrackEvent};
 use serenity::model::gateway::Ready;
 use serenity::model::id::GuildId;
 use colored::Colorize;
@@ -28,6 +29,18 @@ impl EventHandler for Handler {
                     ).await.ok();
                     None
                 },
+                "join" => {
+                    crate::commands::join::run(&ctx, &command
+                    ).await.ok();
+                    None
+                },
+
+                "leave" => {
+                    crate::commands::leave::run(&ctx, &command
+                    ).await.ok();
+                    None
+                },
+
                 _ => Some(CreateInteractionResponseMessage::new().content("not implemented :(".to_string())),
             };
 
@@ -54,6 +67,8 @@ impl EventHandler for Handler {
             .set_commands(&ctx.http, vec![
                 crate::commands::help::register(),
                 crate::commands::ping::register(),
+                crate::commands::join::register(),
+                crate::commands::leave::register(),
             ])
             .await;
         if let Err(why) = commands {
@@ -62,5 +77,24 @@ impl EventHandler for Handler {
 
         let start = crate::START.get().unwrap();
         println!("Bot started in {} ms", start.elapsed().as_millis().to_string().green());
+    }
+}
+
+pub struct TrackErrorNotifier;
+
+#[async_trait]
+impl VoiceEventHandler for TrackErrorNotifier {
+    async fn act(&self, ctx: &EventContext<'_>) -> Option<Event> {
+        if let EventContext::Track(track_list) = ctx {
+            for (state, handle) in *track_list {
+                println!(
+                    "Track {:?} encountered an error: {:?}",
+                    handle.uuid(),
+                    state.playing
+                );
+            }
+        }
+
+        None
     }
 }

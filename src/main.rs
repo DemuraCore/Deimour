@@ -4,6 +4,9 @@ mod handler;
 use std::env;
 use serenity::prelude::*;
 use std::{sync::OnceLock, time::Instant};
+use songbird::SerenityInit;
+use lavalink_rs::{model::events, prelude::*};
+use songbird::events::{Event, EventContext, EventHandler as VoiceEventHandler, TrackEvent};
 use handler::Handler;
 
 static START: OnceLock<Instant> = OnceLock::new();
@@ -19,6 +22,8 @@ const OP_TEXT: &str = r"
  VERSION 0.1.0
 ";
 
+
+
 #[tokio::main]
 async fn main() {
     println!("{}", OP_TEXT);
@@ -28,10 +33,12 @@ async fn main() {
 
     let token = env::var("DISCORD_TOKEN").expect("Expected a token in the environment");
 
-    let mut client = Client::builder(token, GatewayIntents::empty())
+    let mut client = Client::builder(token, GatewayIntents::all())
         .event_handler(Handler)
+        .register_songbird()
         .await
         .expect("Error creating client");
+
 
     if let Err(why) = client.start().await {
         println!("Client error: {why:?}");
