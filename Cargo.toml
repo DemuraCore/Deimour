@@ -1,0 +1,11 @@
+[package]
+name = "deimour"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serenity = "0.12"
+colored = "2"
+lavalink-rs = "0.13"
+tokio = { version = "1.21.2", features = ["macros", "rt-multi-thread"] }
+dotenv = "0.15.0"
