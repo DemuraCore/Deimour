@@ -1,15 +1,19 @@
 mod commands;
 mod handler;
+mod lavalink_handler;
+mod utils;
+mod voice_events;
 
-use std::env;
-use serenity::prelude::*;
-use std::{sync::OnceLock, time::Instant};
-use songbird::SerenityInit;
-use lavalink_rs::{model::events, prelude::*};
-use songbird::events::{Event, EventContext, EventHandler as VoiceEventHandler, TrackEvent};
 use handler::Handler;
+use lavalink_handler::initialize_lavalink_client;
+use serenity::prelude::*;
+use songbird::SerenityInit;
+use std::env;
+use std::{sync::OnceLock, time::Instant};
 
 static START: OnceLock<Instant> = OnceLock::new();
+
+pub type Error = Box<dyn std::error::Error + Send + Sync>;
 
 const OP_TEXT: &str = r"
   _____  ______ _____ __  __  ____  _    _ _____  
@@ -22,8 +26,6 @@ const OP_TEXT: &str = r"
  VERSION 0.1.0
 ";
 
-
-
 #[tokio::main]
 async fn main() {
     println!("{}", OP_TEXT);
@@ -31,16 +33,15 @@ async fn main() {
     START.get_or_init(|| Instant::now());
     dotenv::dotenv().expect("Failed to load .env file");
 
-    let token = env::var("DISCORD_TOKEN").expect("Expected a token in the environment");
-
-    let mut client = Client::builder(token, GatewayIntents::all())
+    let token: String = env::var("DISCORD_TOKEN").expect("Expected a token in the environment");
+    initialize_lavalink_client().await;
+    let mut client: Client = Client::builder(token, GatewayIntents::all())
         .event_handler(Handler)
         .register_songbird()
         .await
         .expect("Error creating client");
 
-
     if let Err(why) = client.start().await {
-        println!("Client error: {why:?}");
+        println!("Client error: {:?}", why);
     }
 }

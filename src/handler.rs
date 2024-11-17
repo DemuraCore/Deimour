@@ -1,11 +1,11 @@
+use colored::Colorize;
 use serenity::async_trait;
-use serenity::prelude::*;
 use serenity::builder::{CreateInteractionResponse, CreateInteractionResponseMessage};
 use serenity::model::application::Interaction;
-use songbird::events::{Event, EventContext, EventHandler as VoiceEventHandler, TrackEvent};
 use serenity::model::gateway::Ready;
 use serenity::model::id::GuildId;
-use colored::Colorize;
+use serenity::prelude::*;
+use songbird::events::{Event, EventContext, EventHandler as VoiceEventHandler};
 use std::env;
 
 pub struct Handler;
@@ -16,36 +16,43 @@ impl EventHandler for Handler {
         if let Interaction::Command(command) = interaction {
             println!(
                 "Received command interaction: {}",
-                command.data.name
+                command.data.name.as_str().on_blue().red()
             );
 
-            let response = match command.data.name.as_str() {
-                "help" => {
-                    let content = crate::commands::help::run(&command.data.options());
-                    Some(CreateInteractionResponseMessage::new().content(content))
-                },
-                "ping" => {
-                    crate::commands::ping::run(&ctx, &command
-                    ).await.ok();
-                    None
-                },
-                "join" => {
-                    crate::commands::join::run(&ctx, &command
-                    ).await.ok();
-                    None
-                },
+            let response: Option<CreateInteractionResponseMessage> =
+                match command.data.name.as_str() {
+                    "help" => {
+                        let content = crate::commands::help::run(&command.data.options());
+                        Some(CreateInteractionResponseMessage::new().content(content))
+                    }
+                    "ping" => {
+                        crate::commands::ping::run(&ctx, &command).await.ok();
+                        None
+                    }
+                    "join" => {
+                        crate::commands::join::run(&ctx, &command).await.ok();
+                        None
+                    }
 
-                "leave" => {
-                    crate::commands::leave::run(&ctx, &command
-                    ).await.ok();
-                    None
-                },
+                    "play" => {
+                        crate::commands::play::run(&ctx, &command).await.ok();
+                        None
+                    }
 
-                _ => Some(CreateInteractionResponseMessage::new().content("not implemented :(".to_string())),
-            };
+                    "leave" => {
+                        let content = crate::commands::leave::run(&ctx, &command).await;
+                        Some(CreateInteractionResponseMessage::new().content(content))
+                    }
+
+                    _ => Some(
+                        CreateInteractionResponseMessage::new()
+                            .content("not implemented :(".to_string()),
+                    ),
+                };
 
             if let Some(response) = response {
-                let builder = CreateInteractionResponse::Message(response);
+                let builder: CreateInteractionResponse =
+                    CreateInteractionResponse::Message(response);
                 if let Err(why) = command.create_response(&ctx.http, builder).await {
                     println!("Cannot respond to slash command: {why}");
                 }
@@ -63,20 +70,27 @@ impl EventHandler for Handler {
                 .expect("GUILD_ID must be an integer"),
         );
 
-        let commands = guild_id
-            .set_commands(&ctx.http, vec![
-                crate::commands::help::register(),
-                crate::commands::ping::register(),
-                crate::commands::join::register(),
-                crate::commands::leave::register(),
-            ])
+        let commands: Result<Vec<serenity::model::prelude::Command>, SerenityError> = guild_id
+            .set_commands(
+                &ctx.http,
+                vec![
+                    crate::commands::help::register(),
+                    crate::commands::ping::register(),
+                    crate::commands::join::register(),
+                    crate::commands::leave::register(),
+                    crate::commands::play::register(),
+                ],
+            )
             .await;
         if let Err(why) = commands {
             println!("Cannot set commands: {why}");
         }
 
         let start = crate::START.get().unwrap();
-        println!("Bot started in {} ms", start.elapsed().as_millis().to_string().green());
+        println!(
+            "Bot started in {} ms",
+            start.elapsed().as_millis().to_string().green()
+        );
     }
 }
 

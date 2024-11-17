@@ -1,5 +1,5 @@
-use serenity::all::CreateInteractionResponse;
-use serenity::builder::{CreateCommand, CreateInteractionResponseMessage};
+use crate::lavalink_handler::LAVALINK_CLIENT;
+use serenity::builder::CreateCommand;
 use serenity::model::prelude::*;
 use serenity::prelude::*;
 
@@ -7,41 +7,27 @@ pub fn register() -> CreateCommand {
     CreateCommand::new("leave").description("Leave a voice channel")
 }
 
-pub async fn run(ctx: &Context,  interaction: &CommandInteraction) ->  Result<(), serenity::Error>  {
+pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> String {
     let guild_id: GuildId = interaction.guild_id.unwrap();
     let manager = songbird::get(ctx)
         .await
         .expect("Songbird Voice client placed in at initialisation.")
         .clone();
     let has_handler = manager.get(guild_id).is_some();
+    let lava_client = LAVALINK_CLIENT
+        .get()
+        .expect("LavalinkClient not initialized")
+        .clone();
+
+    lava_client.delete_player(guild_id).await.unwrap();
 
     if has_handler {
         if let Err(e) = manager.remove(guild_id).await {
-            let response = CreateInteractionResponse::Message(
-                CreateInteractionResponseMessage::new()
-                    .content(format!("Failed to leave voice channel: {:?}", e))
-            );
-            return interaction.create_response(ctx, response).await;
-        } 
+            return format!("Failed to leave voice channel: {:?}", e);
+        }
 
-        let response = CreateInteractionResponse::Message(
-            CreateInteractionResponseMessage::new()
-                .content("Left voice channel")
-        );
-
-        return interaction.create_response(ctx, response).await;
+        "Left voice channel".to_string()
     } else {
-        let response = CreateInteractionResponse::Message(
-            CreateInteractionResponseMessage::new()
-                .content("I'm not in a voice channel")
-        );
-        interaction.create_response(ctx, response).await?;
+        "I'm not in a voice channel".to_string()
     }
-
-
-    
-
-    Ok(())
 }
-
-
