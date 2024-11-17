@@ -4,6 +4,7 @@ mod lavalink_handler;
 mod utils;
 mod voice_events;
 
+use colored::Colorize;
 use handler::Handler;
 use lavalink_handler::initialize_lavalink_client;
 use serenity::prelude::*;
@@ -31,9 +32,17 @@ async fn main() {
     println!("{}", OP_TEXT);
 
     START.get_or_init(|| Instant::now());
-    dotenv::dotenv().expect("Failed to load .env file");
+    if let Err(_) = dotenv::dotenv() {
+        println!("Note: .env file not found, using default environment variables");
+    }
 
-    let token: String = env::var("DISCORD_TOKEN").expect("Expected a token in the environment");
+    let token: String = env::var("DISCORD_TOKEN").expect(
+        format!(
+            "{} Expected DISCORD_TOKEN in environment",
+            "[READY]".red().bold()
+        )
+        .as_str(),
+    );
 
     let mut client: Client = Client::builder(token, GatewayIntents::all())
         .event_handler(Handler)

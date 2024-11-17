@@ -1,4 +1,5 @@
 use crate::voice_events;
+use colored::Colorize;
 use lavalink_rs::client::LavalinkClient;
 use lavalink_rs::{model::events, prelude::*};
 use std::env;
@@ -8,6 +9,10 @@ use tokio::sync::OnceCell;
 pub static LAVALINK_CLIENT: OnceCell<Arc<LavalinkClient>> = OnceCell::const_new();
 
 pub async fn initialize_lavalink_client() {
+    println!(
+        "{} Initializing Lavalink client...",
+        "[Lavalink]".green().bold()
+    );
     let events = events::Events {
         raw: Some(voice_events::raw_event),
         track_end: Some(voice_events::track_end),
