@@ -30,9 +30,29 @@ pub async fn initialize_lavalink_client() {
         user_id: UserId(1307263482789367879),
         session_id: None,
     };
+    let node_pub_1 = NodeBuilder {
+        hostname: "lava.inzeworld.com".to_string(),
+        is_ssl: false,
+        events: events::Events::default(),
+        password: " ".to_string(),
+        user_id: UserId(1307263482789367879),
+        session_id: None,
+    };
+    let node_pub_2 = NodeBuilder {
+        hostname: "lava-v3.ajieblogs.eu.org:80".to_string(),
+        is_ssl: false,
+        events: events::Events::default(),
+        password: "https://dsc.gg/ajidevserver".to_string(),
+        user_id: UserId(1307263482789367879),
+        session_id: None,
+    };
 
-    let client =
-        LavalinkClient::new(events, vec![node], NodeDistributionStrategy::round_robin()).await;
+    let client = LavalinkClient::new(
+        events,
+        vec![node, node_pub_1, node_pub_2],
+        NodeDistributionStrategy::round_robin(),
+    )
+    .await;
 
     let _ = LAVALINK_CLIENT.set(Arc::new(client));
 }
