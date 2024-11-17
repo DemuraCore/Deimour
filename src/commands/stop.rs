@@ -1,6 +1,6 @@
 use crate::lavalink_handler::LAVALINK_CLIENT;
+use crate::utils::responsebuild;
 use crate::Error;
-use serenity::all::CreateInteractionResponse;
 use serenity::builder::{CreateCommand, CreateEmbed, CreateInteractionResponseMessage};
 use serenity::model::prelude::*;
 use serenity::prelude::*;
@@ -14,14 +14,7 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
     let guild_id = interaction.guild_id.unwrap();
 
     let Some(player) = lavalink.get_player_context(guild_id) else {
-        interaction
-            .create_response(
-                &ctx.http,
-                CreateInteractionResponse::Message(
-                    CreateInteractionResponseMessage::new()
-                        .content("Join the bot to a voice channel first."),
-                ),
-            )
+        responsebuild::send_response(ctx, interaction, "Join the bot to a voice channel first")
             .await?;
         return Ok(());
     };
@@ -35,23 +28,14 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
             .color(0x00FF00)
             .description(format!("Stopped playing {}", np.info.title));
 
-        interaction
-            .create_response(
-                &ctx.http,
-                CreateInteractionResponse::Message(
-                    CreateInteractionResponseMessage::new().embed(stop_embed),
-                ),
-            )
-            .await?;
+        responsebuild::send(
+            CreateInteractionResponseMessage::new().embed(stop_embed),
+            ctx,
+            interaction,
+        )
+        .await?;
     } else {
-        interaction
-            .create_response(
-                &ctx.http,
-                CreateInteractionResponse::Message(
-                    CreateInteractionResponseMessage::new().content("Nothing is playing"),
-                ),
-            )
-            .await?;
+        responsebuild::send_response(ctx, interaction, "Nothing is playing").await?;
     }
 
     Ok(())

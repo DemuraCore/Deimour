@@ -6,13 +6,14 @@ use serenity::http::Http;
 use serenity::model::id::ChannelId;
 
 #[hook]
-pub async fn raw_event(_: LavalinkClient, session_id: String, event: &serde_json::Value) {
+pub async fn raw_event(_: LavalinkClient, _session_id: String, event: &serde_json::Value) {
     if event["op"].as_str() == Some("event") || event["op"].as_str() == Some("playerUpdate") {
-        println!(
-            "{} Lavalink raw event: {:?}",
-            "[Lavalink]".green().bold(),
-            event
-        );
+        // println!(
+        //     "{} Lavalink raw event: {:?}",
+        //     "[Lavalink]".green().bold(),
+        //     event
+        // );
+        return;
     }
 }
 
@@ -83,7 +84,7 @@ pub async fn track_start(client: LavalinkClient, _session_id: String, event: &ev
 
 #[hook]
 pub async fn track_end(client: LavalinkClient, _session_id: String, event: &events::TrackEnd) {
-    let player_context = client.get_player_context(event.guild_id).unwrap();
+    let player_context: PlayerContext = client.get_player_context(event.guild_id).unwrap();
     let data = player_context
         .data::<(ChannelId, std::sync::Arc<Http>)>()
         .unwrap();

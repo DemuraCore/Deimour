@@ -60,7 +60,10 @@ impl EventHandler for Handler {
                 let builder: CreateInteractionResponse =
                     CreateInteractionResponse::Message(response);
                 if let Err(why) = command.create_response(&ctx.http, builder).await {
-                    println!("Cannot respond to slash command: {why}");
+                    println!(
+                        "{} Cannot respond to slash command: {why}",
+                        "[ERROR]".red().bold()
+                    );
                 }
             }
         }
