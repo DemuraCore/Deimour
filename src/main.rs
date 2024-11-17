@@ -34,12 +34,15 @@ async fn main() {
     dotenv::dotenv().expect("Failed to load .env file");
 
     let token: String = env::var("DISCORD_TOKEN").expect("Expected a token in the environment");
-    initialize_lavalink_client().await;
+
     let mut client: Client = Client::builder(token, GatewayIntents::all())
         .event_handler(Handler)
         .register_songbird()
         .await
         .expect("Error creating client");
+    // get user id from client
+
+    initialize_lavalink_client().await;
 
     if let Err(why) = client.start().await {
         println!("Client error: {:?}", why);

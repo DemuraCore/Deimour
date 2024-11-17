@@ -1,12 +1,29 @@
+use colored::Colorize;
 use lavalink_rs::{hook, model::events, prelude::*};
+use serenity::all::{CreateEmbed, CreateEmbedFooter, CreateMessage};
 use serenity::futures;
 use serenity::http::Http;
 use serenity::model::id::ChannelId;
 
 #[hook]
-pub async fn ready_event(client: LavalinkClient, session_id: String, event: &events::Ready) {
+pub async fn raw_event(_: LavalinkClient, session_id: String, event: &serde_json::Value) {
+    if event["op"].as_str() == Some("event") || event["op"].as_str() == Some("playerUpdate") {
+        println!(
+            "{} Lavalink raw event: {:?}",
+            "[Lavalink]".green().bold(),
+            event
+        );
+    }
+}
+
+#[hook]
+pub async fn ready_event(client: LavalinkClient, session_id: String, _event: &events::Ready) {
     client.delete_all_player_contexts().await.unwrap();
-    println!("Lavalink ready: {:?}", session_id);
+    println!(
+        "{} Lavalink ready: {:?}",
+        "[Lavalink]".green().bold(),
+        session_id
+    );
 }
 
 #[hook]
@@ -17,34 +34,51 @@ pub async fn track_start(client: LavalinkClient, _session_id: String, event: &ev
         .unwrap();
     let (channel_id, http) = (&data.0, &data.1);
 
-    let msg = {
+    let embed_track = {
         let track = &event.track;
 
         if let Some(uri) = &track.info.uri {
-            format!(
-                "Now playing: [{} - {}](<{}>) | Requested by <@{}>",
+            println!(
+                "{} Now playing: {} - {}",
+                "[Lavalink]".green().bold(),
                 track.info.author,
-                track.info.title,
-                uri,
-                track.user_data.clone().unwrap()["requester_id"]
-                    .as_str()
-                    .unwrap_or_default()
-                    .replace("\"", "")
-            )
+                track.info.title
+            );
+            CreateEmbed::new()
+                .title("Now playing")
+                .color(0x00FF00)
+                .description(format!(
+                    "Now playing: [{} - {}](<{}>) ",
+                    track.info.author, track.info.title, uri,
+                ))
+                .footer(CreateEmbedFooter::new(format!(
+                    "Requested by {}",
+                    track.user_data.clone().unwrap()["requester_username"]
+                        .as_str()
+                        .unwrap_or_default()
+                        .replace("\"", "")
+                )))
         } else {
-            format!(
-                "Now playing: {} - {} | Requested by <@{}>",
-                track.info.author,
-                track.info.title,
-                track.user_data.clone().unwrap()["requester_id"]
-                    .as_str()
-                    .unwrap_or_default()
-                    .replace("\"", "")
-            )
+            CreateEmbed::new()
+                .title("Now playing")
+                .color(0x00FF00)
+                .description(format!(
+                    "Now playing: {} - {}",
+                    track.info.author, track.info.title
+                ))
+                .footer(CreateEmbedFooter::new(format!(
+                    "Requested by {}",
+                    track.user_data.clone().unwrap()["requester_username"]
+                        .as_str()
+                        .unwrap_or_default()
+                        .replace("\"", "")
+                )))
         }
     };
 
-    let _ = channel_id.say(http, msg).await;
+    let _ = channel_id
+        .send_message(http, CreateMessage::new().add_embed(embed_track))
+        .await;
 }
 
 #[hook]
@@ -55,32 +89,41 @@ pub async fn track_end(client: LavalinkClient, _session_id: String, event: &even
         .unwrap();
     let (channel_id, http) = (&data.0, &data.1);
 
-    let msg = {
+    let embed = {
         let track = &event.track;
 
         if let Some(uri) = &track.info.uri {
-            format!(
-                "Finished playing: [{} - {}](<{}>) | Requested by <@{}>",
-                track.info.author,
-                track.info.title,
-                uri,
-                track.user_data.clone().unwrap()["requester_id"]
-                    .as_str()
-                    .unwrap_or_default()
-                    .replace("\"", "")
-            )
+            CreateEmbed::new()
+                .title("Finished playing")
+                .description(format!(
+                    "Finished playing: [{} - {}](<{}>)",
+                    track.info.author, track.info.title, uri
+                ))
+                .footer(CreateEmbedFooter::new(format!(
+                    "Requested by {}",
+                    track.user_data.clone().unwrap()["requester_username"]
+                        .as_str()
+                        .unwrap_or_default()
+                        .replace("\"", "")
+                )))
         } else {
-            format!(
-                "Finished playing: {} - {} | Requested by <@{}>",
-                track.info.author,
-                track.info.title,
-                track.user_data.clone().unwrap()["requester_id"]
-                    .as_str()
-                    .unwrap_or_default()
-                    .replace("\"", "")
-            )
+            CreateEmbed::new()
+                .title("Finished playing")
+                .description(format!(
+                    "Finished playing: {} - {}",
+                    track.info.author, track.info.title
+                ))
+                .footer(CreateEmbedFooter::new(format!(
+                    "Requested by {}",
+                    track.user_data.clone().unwrap()["requester_username"]
+                        .as_str()
+                        .unwrap_or_default()
+                        .replace("\"", "")
+                )))
         }
     };
 
-    let _ = channel_id.say(http, msg).await;
+    let _ = channel_id
+        .send_message(http, CreateMessage::new().add_embed(embed))
+        .await;
 }

@@ -20,7 +20,8 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
     let guild_id = interaction.guild_id.unwrap();
     let has_joined: bool = voice::join_voice_channel(ctx, interaction).await?;
 
-    let Some(player) = lavalink.get_player_context(GuildId(1307264162086391808)) else {
+    let Some(player) = lavalink.get_player_context(GuildId::from(interaction.guild_id.unwrap()))
+    else {
         interaction
             .create_response(
                 &ctx.http,
@@ -37,8 +38,40 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
         return Ok(());
     }
 
-    let query = song.unwrap().value.as_str().unwrap();
-    let search = SearchEngines::YouTube.to_query(query)?;
+    let query: Option<String> = song.and_then(|x| {
+        if let CommandDataOptionValue::String(ref s) = x.value {
+            Some(s.clone())
+        } else {
+            None
+        }
+    });
+
+    let search = if let Some(query) = query {
+        if query.starts_with("http") {
+            query
+        } else {
+            SearchEngines::YouTube.to_query(&query)?
+        }
+    } else {
+        if let Ok(player_data) = player.get_player().await {
+            let queue = player.get_queue();
+
+            if player_data.track.is_none() && queue.get_track(0).await.is_ok_and(|x| x.is_some()) {
+                player.skip()?;
+            } else {
+                interaction
+                    .create_response(
+                        ctx,
+                        CreateInteractionResponse::Message(
+                            CreateInteractionResponseMessage::new().content("Nothing is playing"),
+                        ),
+                    )
+                    .await?;
+            }
+        }
+
+        return Ok(());
+    };
 
     let loaded_track = lavalink.load_tracks(guild_id, &search).await?;
 
@@ -118,8 +151,10 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
         }
     }
     for i in &mut tracks {
-        i.track.user_data =
-            Some(serde_json::json!({"requester_id": ctx.http.get_current_user().await?.id}));
+        i.track.user_data = Some(
+            serde_json::json!({"requester_username": interaction.user.name,
+            "requester_id": interaction.user.id}),
+        );
     }
 
     let queue = player.get_queue();

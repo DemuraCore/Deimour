@@ -15,7 +15,8 @@ impl EventHandler for Handler {
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
         if let Interaction::Command(command) = interaction {
             println!(
-                "Received command interaction: {}",
+                "{} Received command interaction: {}",
+                "[INTERACTION]".green().bold(),
                 command.data.name.as_str().on_blue().red()
             );
 
@@ -44,6 +45,11 @@ impl EventHandler for Handler {
                         Some(CreateInteractionResponseMessage::new().content(content))
                     }
 
+                    "stop" => {
+                        crate::commands::stop::run(&ctx, &command).await.ok();
+                        None
+                    }
+
                     _ => Some(
                         CreateInteractionResponseMessage::new()
                             .content("not implemented :(".to_string()),
@@ -61,7 +67,11 @@ impl EventHandler for Handler {
     }
 
     async fn ready(&self, ctx: Context, ready: Ready) {
-        println!("{} is connected!", ready.user.name.to_string().green());
+        println!(
+            "{} {} is connected!",
+            "[READY]".green().bold(),
+            ready.user.name.to_string().green()
+        );
 
         let guild_id = GuildId::new(
             env::var("GUILD_ID")
@@ -79,6 +89,7 @@ impl EventHandler for Handler {
                     crate::commands::join::register(),
                     crate::commands::leave::register(),
                     crate::commands::play::register(),
+                    crate::commands::stop::register(),
                 ],
             )
             .await;
@@ -88,7 +99,8 @@ impl EventHandler for Handler {
 
         let start = crate::START.get().unwrap();
         println!(
-            "Bot started in {} ms",
+            "{} Bot started in {} ms",
+            "[READY]".green().bold(),
             start.elapsed().as_millis().to_string().green()
         );
     }
