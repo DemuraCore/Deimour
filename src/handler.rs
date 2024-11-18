@@ -1,3 +1,4 @@
+use crate::utils::responsebuild;
 use colored::Colorize;
 use serenity::async_trait;
 use serenity::builder::{CreateInteractionResponse, CreateInteractionResponseMessage};
@@ -7,7 +8,6 @@ use serenity::model::id::GuildId;
 use serenity::prelude::*;
 use songbird::events::{Event, EventContext, EventHandler as VoiceEventHandler};
 use std::env;
-
 pub struct Handler;
 
 #[async_trait]
@@ -23,8 +23,8 @@ impl EventHandler for Handler {
             let response: Option<CreateInteractionResponseMessage> =
                 match command.data.name.as_str() {
                     "help" => {
-                        let content = crate::commands::help::run(&command.data.options());
-                        Some(CreateInteractionResponseMessage::new().content(content))
+                        let embed = crate::commands::help::run(&command.data.options());
+                        Some(CreateInteractionResponseMessage::new().add_embed(embed))
                     }
                     "ping" => {
                         crate::commands::ping::run(&ctx, &command).await.ok();
