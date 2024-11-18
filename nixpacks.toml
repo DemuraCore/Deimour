@@ -1,2 +1,2 @@
 [phases.setup]
-aptPkgs = ["cmake", "openssl", "glibc"]
+aptPkgs = ["cmake", "openssl", "glibc-source"]
