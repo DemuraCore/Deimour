@@ -26,7 +26,7 @@ pub async fn send_response(
     ctx: &Context,
     interaction: &CommandInteraction,
     content: impl Into<String>,
-) -> Result<(), Error> {
+) -> Result<(), serenity::Error> {
     interaction
         .create_response(
             ctx,
@@ -34,17 +34,17 @@ pub async fn send_response(
                 CreateInteractionResponseMessage::new().content(content),
             ),
         )
-        .await
-        .map_err(Error::from)
+        .await?;
+    Ok(())
 }
 
 pub async fn send(
     builder: builder::CreateInteractionResponseMessage,
     ctx: &Context,
     interaction: &CommandInteraction,
-) -> Result<(), Error> {
+) -> Result<(), serenity::Error> {
     interaction
         .create_response(ctx, CreateInteractionResponse::Message(builder))
-        .await
-        .map_err(Error::from)
+        .await?;
+    Ok(())
 }

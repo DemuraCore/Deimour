@@ -22,14 +22,15 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
     let now_playing = player.get_player().await?.track;
 
     if let Some(np) = now_playing {
-        player.stop_now().await?;
-        let stop_embed: CreateEmbed = CreateEmbed::new()
-            .title("Stopped")
-            .color(colour::Colour::RED)
-            .description(format!("Stopped playing {}", np.info.title));
+        player.skip()?;
+
+        let skip_embed: CreateEmbed = CreateEmbed::new()
+            .title("Skipped")
+            .color(colour::Colour::DARK_GREEN)
+            .description(format!("Skipped {}", np.info.title));
 
         responsebuild::send(
-            CreateInteractionResponseMessage::new().embed(stop_embed),
+            CreateInteractionResponseMessage::new().embed(skip_embed),
             ctx,
             interaction,
         )
@@ -42,5 +43,5 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
 }
 
 pub fn register() -> CreateCommand {
-    CreateCommand::new("stop").description("Stop the music")
+    CreateCommand::new("skip").description("Skip the current song")
 }

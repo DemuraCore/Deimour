@@ -21,6 +21,10 @@ pub async fn join_voice_channel(
         .voice_states
         .get(&member.user.id)
         .and_then(|vs| vs.channel_id);
+
+    let channel_context_id = interaction.channel_id;
+    let channel_context = guild.channels.get(&channel_context_id).unwrap().clone();
+
     if lava_client.get_player_context(guild_id).is_none() {
         let connect_to = match channel_id {
             Some(channel) => channel,
@@ -61,7 +65,13 @@ pub async fn join_voice_channel(
                     interaction.create_response(ctx, response).await?;
                     return Ok(false);
                 }
-                connect_to
+                // connect_to
+                //     .say(
+                //         ctx,
+                //         format!("Joined voice channel: {}", connect_to.mention()),
+                //     )
+                //     .await?;
+                channel_context
                     .say(
                         ctx,
                         format!("Joined voice channel: {}", connect_to.mention()),

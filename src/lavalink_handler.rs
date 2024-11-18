@@ -14,7 +14,9 @@ pub async fn initialize_lavalink_client() {
         "[Lavalink]".green().bold()
     );
     let events: events::Events = events::Events {
+        stats: Some(voice_events::stats_event),
         raw: Some(voice_events::raw_event),
+
         track_end: Some(voice_events::track_end),
         ready: Some(voice_events::ready_event),
         track_start: Some(voice_events::track_start),
@@ -30,29 +32,9 @@ pub async fn initialize_lavalink_client() {
         user_id: UserId(1307263482789367879),
         session_id: None,
     };
-    let node_pub_1: NodeBuilder = NodeBuilder {
-        hostname: "lava.inzeworld.com".to_string(),
-        is_ssl: false,
-        events: events::Events::default(),
-        password: " ".to_string(),
-        user_id: UserId(1307263482789367879),
-        session_id: None,
-    };
-    let node_pub_2: NodeBuilder = NodeBuilder {
-        hostname: "lava-v3.ajieblogs.eu.org:80".to_string(),
-        is_ssl: false,
-        events: events::Events::default(),
-        password: "https://dsc.gg/ajidevserver".to_string(),
-        user_id: UserId(1307263482789367879),
-        session_id: None,
-    };
 
-    let client: LavalinkClient = LavalinkClient::new(
-        events,
-        vec![node, node_pub_1, node_pub_2],
-        NodeDistributionStrategy::round_robin(),
-    )
-    .await;
+    let client: LavalinkClient =
+        LavalinkClient::new(events, vec![node], NodeDistributionStrategy::round_robin()).await;
 
     let _ = LAVALINK_CLIENT.set(Arc::new(client));
 }

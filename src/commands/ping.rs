@@ -1,3 +1,4 @@
+use crate::utils::responsebuild;
 use serenity::all::CreateInteractionResponse;
 use serenity::builder::{CreateCommand, CreateEmbed, CreateInteractionResponseMessage};
 use serenity::model::prelude::*;
@@ -13,16 +14,16 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
     let duration: std::time::Duration = start.elapsed();
 
     let embed: CreateEmbed = CreateEmbed::new()
-        .title("Ping")
-        .description(format!("Latency: {}ms", duration.as_millis()))
+        .title("Ping 🏓")
+        .description(format!("📡 Latency: {}ms", duration.as_millis()))
         .color(0x00FF00);
 
-    // create embed response
-    let response =
-        CreateInteractionResponse::Message(CreateInteractionResponseMessage::new().embed(embed));
-
-    // send response
-    interaction.create_response(ctx, response).await?;
+    responsebuild::send(
+        CreateInteractionResponseMessage::new().embed(embed),
+        ctx,
+        interaction,
+    )
+    .await?;
 
     Ok(())
 }

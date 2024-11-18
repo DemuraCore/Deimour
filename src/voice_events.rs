@@ -49,7 +49,7 @@ pub async fn track_start(client: LavalinkClient, _session_id: String, event: &ev
                 .title("Now playing")
                 .color(0x00FF00)
                 .description(format!(
-                    "Now playing: [{} - {}](<{}>) ",
+                    "[{} - {}](<{}>) ",
                     track.info.author, track.info.title, uri,
                 ))
                 .footer(CreateEmbedFooter::new(format!(
@@ -63,10 +63,7 @@ pub async fn track_start(client: LavalinkClient, _session_id: String, event: &ev
             CreateEmbed::new()
                 .title("Now playing")
                 .color(0x00FF00)
-                .description(format!(
-                    "Now playing: {} - {}",
-                    track.info.author, track.info.title
-                ))
+                .description(format!("{} - {}", track.info.author, track.info.title))
                 .footer(CreateEmbedFooter::new(format!(
                     "Requested by {}",
                     track.user_data.clone().unwrap()["requester_username"]
@@ -127,4 +124,23 @@ pub async fn track_end(client: LavalinkClient, _session_id: String, event: &even
     let _ = channel_id
         .send_message(http, CreateMessage::new().add_embed(embed))
         .await;
+}
+
+#[hook]
+pub async fn stats_event(_: LavalinkClient, guild_id: String, stats: &events::Stats) {
+    println!(
+        "{} Lavalink stats for {}: {} players, {} playing players, {} cpu cores, {} system load, {} mem free, {} mem used, {} mem allocated, {} uptime",
+        "[Lavalink]".green().bold(),
+        guild_id,
+        stats.players,
+        stats.playing_players,
+        stats.cpu.cores,
+        stats.cpu.system_load,
+        stats.memory.free,
+        stats.memory.used,
+        stats.memory.allocated,
+        stats.uptime
+    );
+
+    // send stats to channel
 }

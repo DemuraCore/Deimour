@@ -1,16 +1,26 @@
 use crate::lavalink_handler::LAVALINK_CLIENT;
+use crate::utils::responsebuild;
 use crate::utils::voice;
 use crate::Error;
 use lavalink_rs::model::GuildId;
 use lavalink_rs::prelude::SearchEngines;
 use lavalink_rs::prelude::*;
 use serenity::all::CreateInteractionResponse;
-use serenity::builder::{CreateCommand, CreateCommandOption, CreateInteractionResponseMessage};
+use serenity::builder::{
+    CreateCommand, CreateCommandOption, CreateEmbed, CreateEmbedFooter,
+    CreateInteractionResponseMessage,
+};
 use serenity::model::application::CommandOptionType;
 use serenity::model::prelude::*;
 use serenity::prelude::*;
 
+// start timer for how long the bot takes to respond
+use std::time::Instant;
+
 pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), Error> {
+    // start timer for how long the bot takes to respond
+    let start = Instant::now();
+
     let song = interaction.data.options.get(0);
     let lavalink = LAVALINK_CLIENT
         .get()
@@ -115,39 +125,67 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
         let track = &tracks[0].track;
 
         if let Some(uri) = &track.info.uri {
-            // ctx.say(format!(
-            //     "Added to queue: [{} - {}](<{}>)",
-            //     track.info.author, track.info.title, uri
-            // ))
-            // .await?;
-            interaction
-                .create_response(
-                    ctx,
-                    CreateInteractionResponse::Message(
-                        CreateInteractionResponseMessage::new().content(format!(
-                            "Added to queue: [{} - {}](<{}>)",
-                            track.info.author, track.info.title, uri
-                        )),
-                    ),
-                )
-                .await?;
+            let duration: std::time::Duration = start.elapsed();
+
+            let queue_embed: CreateEmbed = CreateEmbed::new()
+                .title("Added to queue")
+                .color(0x00FF00)
+                .description(format!(
+                    "[{} - {}](<{}>)",
+                    track.info.author, track.info.title, uri
+                ))
+                .footer(CreateEmbedFooter::new(format!(
+                    "Deimour took {}ms to respond",
+                    duration.as_millis()
+                )))
+                .fields(
+                    vec![
+                        ("Requested by", interaction.user.name.clone(), true),
+                        (
+                            "Duration",
+                            format!("{} seconds", track.info.length / 1000),
+                            true,
+                        ),
+                    ]
+                    .into_iter()
+                    .map(|(name, value, inline)| (name, value, inline)),
+                );
+
+            responsebuild::send(
+                CreateInteractionResponseMessage::new().embed(queue_embed),
+                ctx,
+                interaction,
+            )
+            .await?;
         } else {
-            // ctx.say(format!(
-            //     "Added to queue: {} - {}",
-            //     track.info.author, track.info.title
-            // ))
-            // .await?;
-            interaction
-                .create_response(
-                    ctx,
-                    CreateInteractionResponse::Message(
-                        CreateInteractionResponseMessage::new().content(format!(
-                            "Added to queue: {} - {}",
-                            track.info.author, track.info.title
-                        )),
-                    ),
+            let duration: std::time::Duration = start.elapsed();
+            let queue_embed: CreateEmbed = CreateEmbed::new()
+                .title("Added to queue")
+                .color(0x00FF00)
+                .description(format!("{} - {}", track.info.author, track.info.title))
+                .fields(
+                    vec![
+                        ("Requested by", interaction.user.name.clone(), true),
+                        (
+                            "Duration",
+                            format!("{} seconds", track.info.length / 1000),
+                            true,
+                        ),
+                    ]
+                    .into_iter()
+                    .map(|(name, value, inline)| (name, value, inline)),
                 )
-                .await?;
+                .footer(CreateEmbedFooter::new(format!(
+                    "Deimour took {}ms to respond",
+                    duration.as_millis()
+                )));
+
+            responsebuild::send(
+                CreateInteractionResponseMessage::new().embed(queue_embed),
+                ctx,
+                interaction,
+            )
+            .await?;
         }
     }
     for i in &mut tracks {
