@@ -1,2 +1,2 @@
-[phases.build]
-runtime_packages = ["openssl", "pkg-config"]
+[phases.setup]
+aptPkgs = ["cmake", "openssl"]
