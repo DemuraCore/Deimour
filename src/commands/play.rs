@@ -1,9 +1,8 @@
 use crate::lavalink_handler::LAVALINK_CLIENT;
-use crate::utils::responsebuild;
+use crate::utils::responds_build;
 use crate::utils::voice;
 use crate::Error;
 use lavalink_rs::model::GuildId;
-use lavalink_rs::prelude::SearchEngines;
 use lavalink_rs::prelude::*;
 use serenity::all::CreateInteractionResponse;
 use serenity::builder::{
@@ -151,10 +150,10 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
                     .map(|(name, value, inline)| (name, value, inline)),
                 );
 
-            responsebuild::send(
-                CreateInteractionResponseMessage::new().embed(queue_embed),
+            responds_build::send(
                 ctx,
                 interaction,
+                CreateInteractionResponseMessage::new().embed(queue_embed),
             )
             .await?;
         } else {
@@ -180,10 +179,10 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
                     duration.as_millis()
                 )));
 
-            responsebuild::send(
-                CreateInteractionResponseMessage::new().embed(queue_embed),
+            responds_build::send(
                 ctx,
                 interaction,
+                CreateInteractionResponseMessage::new().embed(queue_embed),
             )
             .await?;
         }

@@ -1,4 +1,4 @@
-use crate::utils::responsebuild;
+use crate::utils::responds_build;
 use serenity::builder::{CreateCommand, CreateEmbed, CreateInteractionResponseMessage};
 use serenity::model::prelude::*;
 use serenity::prelude::*;
@@ -17,10 +17,10 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
         .description(format!("📡 Latency: {}ms", duration.as_millis()))
         .color(0x00FF00);
 
-    responsebuild::send(
-        CreateInteractionResponseMessage::new().embed(embed),
+    responds_build::send(
         ctx,
         interaction,
+        CreateInteractionResponseMessage::new().embed(embed),
     )
     .await?;
 

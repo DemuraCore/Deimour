@@ -38,12 +38,28 @@ pub async fn send_response(
 }
 
 pub async fn send(
-    builder: builder::CreateInteractionResponseMessage,
     ctx: &Context,
     interaction: &CommandInteraction,
+    builder: builder::CreateInteractionResponseMessage,
 ) -> Result<(), serenity::Error> {
     interaction
         .create_response(ctx, CreateInteractionResponse::Message(builder))
+        .await?;
+    Ok(())
+}
+
+pub async fn _send_embed(
+    ctx: &Context,
+    interaction: &CommandInteraction,
+    embed: CreateEmbed,
+) -> Result<(), serenity::Error> {
+    interaction
+        .create_response(
+            ctx,
+            CreateInteractionResponse::Message(
+                CreateInteractionResponseMessage::new().add_embed(embed),
+            ),
+        )
         .await?;
     Ok(())
 }

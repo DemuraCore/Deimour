@@ -1,5 +1,5 @@
 use crate::lavalink_handler::LAVALINK_CLIENT;
-use crate::utils::responsebuild;
+use crate::utils::responds_build;
 use crate::Error;
 use serenity::builder::{CreateCommand, CreateEmbed, CreateInteractionResponseMessage};
 use serenity::model::{colour, prelude::*};
@@ -14,7 +14,7 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
     let guild_id = interaction.guild_id.unwrap();
 
     let Some(player) = lavalink.get_player_context(guild_id) else {
-        responsebuild::send_response(ctx, interaction, "Join the bot to a voice channel first")
+        responds_build::send_response(ctx, interaction, "Join the bot to a voice channel first")
             .await?;
         return Ok(());
     };
@@ -28,14 +28,14 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
             .color(colour::Colour::RED)
             .description(format!("Stopped playing {}", np.info.title));
 
-        responsebuild::send(
-            CreateInteractionResponseMessage::new().embed(stop_embed),
+        responds_build::send(
             ctx,
             interaction,
+            CreateInteractionResponseMessage::new().embed(stop_embed),
         )
         .await?;
     } else {
-        responsebuild::send_response(ctx, interaction, "Nothing is playing").await?;
+        responds_build::send_response(ctx, interaction, "Nothing is playing").await?;
     }
 
     Ok(())
