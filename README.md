@@ -1,4 +1,4 @@
-# Deimour V0.1.0
+# Deimour V0.1.2
 Bot Music Made with Rust
 
 ### Run

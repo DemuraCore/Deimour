@@ -21,6 +21,7 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
     let start = Instant::now();
 
     let song = interaction.data.options.get(0);
+    let source = interaction.data.options.get(1);
     let lavalink = LAVALINK_CLIENT
         .get()
         .expect("LavalinkClient not initialized")
@@ -59,7 +60,19 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
         if query.starts_with("http") {
             query
         } else {
-            SearchEngines::YouTube.to_query(&query)?
+            // SearchEngines::YouTube.to_query(&query)?
+            match source {
+                Some(source) => match source.value {
+                    CommandDataOptionValue::String(ref s) => match s.as_str() {
+                        "youtube" => SearchEngines::YouTube.to_query(&query)?,
+                        "soundcloud" => SearchEngines::SoundCloud.to_query(&query)?,
+                        "dezeer" => SearchEngines::Deezer.to_query(&query)?,
+                        _ => SearchEngines::YouTube.to_query(&query)?,
+                    },
+                    _ => SearchEngines::YouTube.to_query(&query)?,
+                },
+                None => SearchEngines::YouTube.to_query(&query)?,
+            }
         }
     } else {
         if let Ok(player_data) = player.get_player().await {
@@ -211,6 +224,16 @@ pub fn register() -> CreateCommand {
         .add_option(
             CreateCommandOption::new(CommandOptionType::String, "song", "The song to play")
                 .required(true),
+        )
+        .add_option(
+            CreateCommandOption::new(
+                CommandOptionType::String,
+                "source",
+                "The source of the song",
+            )
+            .add_string_choice("Youtube", "youtube")
+            .add_string_choice("Soundcloud", "soundcloud")
+            .add_string_choice("dezeer", "dezeer"),
         )
         .description("Play a song")
 }
