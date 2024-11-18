@@ -1,4 +1,3 @@
-use crate::Error;
 use serenity::all::CreateInteractionResponse;
 use serenity::all::{CreateEmbed, CreateInteractionResponseMessage};
 use serenity::model::prelude::*;
