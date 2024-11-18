@@ -1,5 +1,5 @@
 use serenity::all::{Colour, CreateEmbed};
-use serenity::builder::{CreateCommand, CreateInteractionResponseMessage};
+use serenity::builder::CreateCommand;
 use serenity::model::application::ResolvedOption;
 
 pub fn run(_options: &[ResolvedOption]) -> CreateEmbed {

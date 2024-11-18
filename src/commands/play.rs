@@ -1,4 +1,5 @@
 use crate::lavalink_handler::LAVALINK_CLIENT;
+use crate::utils::format_duration;
 use crate::utils::responds_build;
 use crate::utils::voice;
 use crate::Error;
@@ -155,7 +156,7 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
                         ("Requested by", interaction.user.name.clone(), true),
                         (
                             "Duration",
-                            format!("{} seconds", track.info.length / 1000),
+                            format!("{}", format_duration(track.info.length / 10000)),
                             true,
                         ),
                     ]

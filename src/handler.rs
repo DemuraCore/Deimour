@@ -54,6 +54,11 @@ impl EventHandler for Handler {
                         None
                     }
 
+                    "replay" => {
+                        crate::commands::replay::run(&ctx, &command).await.ok();
+                        None
+                    }
+
                     _ => Some(
                         CreateInteractionResponseMessage::new()
                             .content("not implemented :(".to_string()),
@@ -98,6 +103,7 @@ impl EventHandler for Handler {
                     crate::commands::play::register(),
                     crate::commands::stop::register(),
                     crate::commands::skip::register(),
+                    crate::commands::replay::register(),
                 ],
             )
             .await;
