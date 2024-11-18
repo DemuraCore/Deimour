@@ -11,6 +11,12 @@ RUN apt-get update && apt-get install -y \
 # Create build directory
 WORKDIR /usr/src/deimour
 
+# Copy manifest files
+COPY Cargo.toml Cargo.lock ./
+
+# Copy source code
+COPY src/ src/
+
 # Build release version
 RUN cargo build --release
 
