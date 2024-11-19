@@ -50,8 +50,9 @@ async fn main() {
         .await
         .expect("Error creating client");
     // get user id from client
-
-    initialize_lavalink_client().await;
+    tokio::spawn(async move {
+        initialize_lavalink_client().await;
+    });
 
     if let Err(why) = client.start().await {
         println!("Client error: {:?}", why);
