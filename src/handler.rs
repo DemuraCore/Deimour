@@ -1,7 +1,7 @@
 use colored::Colorize;
 use serenity::async_trait;
 use serenity::builder::{CreateInteractionResponse, CreateInteractionResponseMessage};
-use serenity::model::application::Interaction;
+use serenity::model::application::{Command, Interaction};
 use serenity::model::gateway::Ready;
 use serenity::model::id::GuildId;
 use serenity::prelude::*;
@@ -113,6 +113,27 @@ impl EventHandler for Handler {
                 ],
             )
             .await;
+
+        let commands_global = Command::set_global_commands(
+            &ctx.http,
+            vec![
+                crate::commands::help::register(),
+                crate::commands::ping::register(),
+                crate::commands::join::register(),
+                crate::commands::leave::register(),
+                crate::commands::play::register(),
+                crate::commands::stop::register(),
+                crate::commands::skip::register(),
+                crate::commands::replay::register(),
+                crate::commands::stats::register(),
+            ],
+        )
+        .await;
+
+        if let Err(why) = commands_global {
+            println!("Cannot set global commands: {why}");
+        }
+
         if let Err(why) = commands {
             println!("Cannot set commands: {why}");
         }

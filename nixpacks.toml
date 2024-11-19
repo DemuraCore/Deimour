@@ -1,3 +1,0 @@
-[phases.setup]
-nixPkgs = ["cmake", "openssl", ""]
-aptPkgs = ["cmake", "openssl", "glibc-source"]
