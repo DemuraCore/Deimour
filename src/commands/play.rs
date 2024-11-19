@@ -68,11 +68,12 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
                         "youtube" => SearchEngines::YouTube.to_query(&query)?,
                         "soundcloud" => SearchEngines::SoundCloud.to_query(&query)?,
                         "dezeer" => SearchEngines::Deezer.to_query(&query)?,
-                        _ => SearchEngines::YouTube.to_query(&query)?,
+                        "spotify" => SearchEngines::Spotify.to_query(&query)?,
+                        _ => SearchEngines::SoundCloud.to_query(&query)?,
                     },
-                    _ => SearchEngines::YouTube.to_query(&query)?,
+                    _ => SearchEngines::SoundCloud.to_query(&query)?,
                 },
-                None => SearchEngines::YouTube.to_query(&query)?,
+                None => SearchEngines::SoundCloud.to_query(&query)?,
             }
         }
     } else {
@@ -234,6 +235,7 @@ pub fn register() -> CreateCommand {
             )
             .add_string_choice("Youtube", "youtube")
             .add_string_choice("Soundcloud", "soundcloud")
+            .add_string_choice("Spotify", "spotify")
             .add_string_choice("dezeer", "dezeer"),
         )
         .description("Play a song")

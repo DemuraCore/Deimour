@@ -54,6 +54,11 @@ impl EventHandler for Handler {
                         None
                     }
 
+                    "stats" => {
+                        crate::commands::stats::run(&ctx, &command).await.ok();
+                        None
+                    }
+
                     "replay" => {
                         crate::commands::replay::run(&ctx, &command).await.ok();
                         None
@@ -104,6 +109,7 @@ impl EventHandler for Handler {
                     crate::commands::stop::register(),
                     crate::commands::skip::register(),
                     crate::commands::replay::register(),
+                    crate::commands::stats::register(),
                 ],
             )
             .await;

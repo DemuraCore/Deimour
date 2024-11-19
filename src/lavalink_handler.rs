@@ -24,6 +24,24 @@ pub async fn initialize_lavalink_client() {
         ..Default::default()
     };
 
+    let pub_node: NodeBuilder = NodeBuilder {
+        hostname: "lava.inzeworld.com:3128".to_string(),
+        is_ssl: false,
+        events: events::Events::default(),
+        password: "saher.inzeworld.com".to_string(),
+        user_id: UserId(1307263482789367879),
+        session_id: None,
+    };
+
+    let fallback_node: NodeBuilder = NodeBuilder {
+        hostname: "lavaLink4.lightsout.in:40069".to_string(),
+        is_ssl: false,
+        events: events::Events::default(),
+        password: "LightsoutOwnsElves".to_string(),
+        user_id: UserId(1307263482789367879),
+        session_id: None,
+    };
+
     let node: NodeBuilder = NodeBuilder {
         hostname: env::var("LAVALINK_HOST").expect("Expected LAVALINK_HOST in environment"),
         is_ssl: false,
@@ -33,8 +51,12 @@ pub async fn initialize_lavalink_client() {
         session_id: None,
     };
 
-    let client: LavalinkClient =
-        LavalinkClient::new(events, vec![node], NodeDistributionStrategy::round_robin()).await;
+    let client: LavalinkClient = LavalinkClient::new(
+        events,
+        vec![pub_node, fallback_node, node],
+        NodeDistributionStrategy::round_robin(),
+    )
+    .await;
 
     let _ = LAVALINK_CLIENT.set(Arc::new(client));
 }

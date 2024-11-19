@@ -5,4 +5,5 @@ pub mod ping;
 pub mod play;
 pub mod replay;
 pub mod skip;
+pub mod stats;
 pub mod stop;
