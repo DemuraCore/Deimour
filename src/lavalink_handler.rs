@@ -34,10 +34,10 @@ pub async fn initialize_lavalink_client() {
     };
 
     let fallback_node: NodeBuilder = NodeBuilder {
-        hostname: "lavaLink4.lightsout.in:40069".to_string(),
+        hostname: "lavahatry4.techbyte.host:3000".to_string(),
         is_ssl: false,
         events: events::Events::default(),
-        password: "LightsoutOwnsElves".to_string(),
+        password: "NAIGLAVA-dash.techbyte.host".to_string(),
         user_id: UserId(1307263482789367879),
         session_id: None,
     };
