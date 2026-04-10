@@ -89,6 +89,8 @@ impl EventHandler for Handler {
     }
 
     async fn ready(&self, ctx: Context, ready: Ready) {
+        ctx.set_presence(None, serenity::model::user::OnlineStatus::Invisible);
+
         println!(
             "{} {} is connected!",
             "[READY]".green().bold(),
