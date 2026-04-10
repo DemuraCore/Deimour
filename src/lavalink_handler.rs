@@ -8,7 +8,7 @@ use tokio::sync::OnceCell;
 
 pub static LAVALINK_CLIENT: OnceCell<Arc<LavalinkClient>> = OnceCell::const_new();
 
-pub async fn initialize_lavalink_client() {
+pub async fn initialize_lavalink_client(bot_id: u64) {
     println!(
         "{} Initializing Lavalink client...",
         "[Lavalink]".green().bold()
@@ -29,7 +29,7 @@ pub async fn initialize_lavalink_client() {
         is_ssl: false,
         events: events::Events::default(),
         password: "saher.inzeworld.com".to_string(),
-        user_id: UserId(1307263482789367879),
+        user_id: UserId(bot_id),
         session_id: None,
     };
 
@@ -38,7 +38,7 @@ pub async fn initialize_lavalink_client() {
         is_ssl: false,
         events: events::Events::default(),
         password: "NAIGLAVA-dash.techbyte.host".to_string(),
-        user_id: UserId(1307263482789367879),
+        user_id: UserId(bot_id),
         session_id: None,
     };
 
@@ -47,7 +47,7 @@ pub async fn initialize_lavalink_client() {
         is_ssl: false,
         events: events::Events::default(),
         password: env::var("LAVALINK_PASSWORD").expect("Expected LAVALINK_PASSWORD in environment"),
-        user_id: UserId(1307263482789367879),
+        user_id: UserId(bot_id),
         session_id: None,
     };
 
